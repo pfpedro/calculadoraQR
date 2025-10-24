@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de QR Code MedSlim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --azul-petroleo: #1F4E5F;
+            --teal: #3FA7A0;
+            --rose: #E9B8B5;
+            --coral: #F28F7E;
+            --lavanda: #E6E3F1;
+            --areia: #F5F2EB;
+            --cinza-tech: #CED3DC;
+            --dourado: #C9A44C;
+            --white: #FFFFFF;
+            --dark: #1F2937;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--areia) 0%, var(--lavanda) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--dark);
+            line-height: 1.7;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(31, 78, 95, 0.15);
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--azul-petroleo) 0%, var(--teal) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 24px rgba(31, 78, 95, 0.3);
+        }
+        
+        .header-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--azul-petroleo);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: var(--teal);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            background: var(--lavanda);
+            padding: 4px;
+            border-radius: 16px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--azul-petroleo);
+            opacity: 0.6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tab:hover {
+            opacity: 0.8;
+        }
+        
+        .tab.active {
+            background: white;
+            opacity: 1;
+            box-shadow: 0 2px 8px rgba(31, 78, 95, 0.1);
+        }
+        
+        .tab svg {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--azul-petroleo);
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--azul-petroleo);
+            margin-bottom: 8px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--lavanda);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(63, 167, 160, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .input-hint {
+            font-size: 0.8rem;
+            color: var(--teal);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .button-primary {
+            background: var(--coral);
+            color: white;
+            border: 2px solid var(--coral);
+            box-shadow: 0 8px 24px rgba(242, 143, 126, 0.3);
+        }
+        
+        .button-primary:hover {
+            background: white;
+            color: var(--coral);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(242, 143, 126, 0.3);
+        }
+        
+        .button-secondary {
+            background: transparent;
+            color: var(--teal);
+            border: 2px solid var(--teal);
+        }
+        
+        .button-secondary:hover {
+            background: var(--teal);
+            color: white;
+        }
+        
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .qr-container {
+            background: linear-gradient(135deg, var(--areia) 0%, var(--lavanda) 100%);
+            border-radius: 24px;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid var(--lavanda);
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 256px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        #qrcode canvas, #qrcode img {
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            background: white;
+            padding: 16px;
+        }
+        
+        .qr-placeholder {
+            color: var(--azul-petroleo);
+            font-size: 0.95rem;
+        }
+        
+        .qr-placeholder svg {
+            width: 64px;
+            height: 64px;
+            fill: var(--teal);
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .button svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .customization-options {
+            margin-top: 24px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .style-selector {
+            margin-bottom: 20px;
+        }
+        
+        .style-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .style-button {
+            flex: 1;
+            padding: 12px 16px;
+            background: white;
+            border: 2px solid var(--lavanda);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--azul-petroleo);
+        }
+        
+        .style-button:hover {
+            border-color: var(--teal);
+        }
+        
+        .style-button.active {
+            background: var(--teal);
+            border-color: var(--teal);
+            color: white;
+        }
+        
+        .style-button svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .color-selector-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--azul-petroleo);
+            margin-bottom: 12px;
+        }
+        
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .color-option.active {
+            transform: scale(1.1);
+            border-color: var(--azul-petroleo);
+            box-shadow: 0 0 0 3px white, 0 0 0 5px var(--azul-petroleo);
+        }
+        
+        .color-option::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            text-shadow: 0 0 4px rgba(0,0,0,0.5);
+        }
+        
+        .color-option.active::after {
+            opacity: 1;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            color: var(--azul-petroleo);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            
+            .container {
+                padding: 24px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            .style-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm7-2h7v7h-7V3zm2 2v3h3V5h-3zM3 12h7v7H3v-7zm2 2v3h3v-3H5zm7-2h7v7h-7v-7zm2 2v3h3v-3h-3z"/>
+                </svg>
+            </div>
+            <h1>Gerador de QR Code MedSlim</h1>
+            <p class="subtitle">Crie QR codes personalizados para sua clínica</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('url')">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                        URL
+                    </button>
+                    <button class="tab" onclick="showTab('text')">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Texto
+                    </button>
+                    <button class="tab" onclick="showTab('contact')">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Contato
+                    </button>
+                </div>
+                
+                <div class="form-content">
+                    <!-- Tab URL -->
+                    <div id="url-tab" class="tab-content active">
+                        <h2 class="section-title">Digite a URL</h2>
+                        <div class="input-group">
+                            <label for="url-input">Endereço do site</label>
+                            <input type="url" id="url-input" placeholder="exemplo.com ou https://exemplo.com">
+                            <p class="input-hint">✓ Adiciona https:// automaticamente se necessário</p>
+                        </div>
+                        <button class="button button-primary" onclick="generateQR('url')">
+                            Gerar QR Code
+                        </button>
+                    </div>
+                    
+                    <!-- Tab Texto -->
+                    <div id="text-tab" class="tab-content">
+                        <h2 class="section-title">Digite o texto</h2>
+                        <div class="input-group">
+                            <label for="text-input">Conteúdo de texto</label>
+                            <textarea id="text-input" placeholder="Digite qualquer texto para gerar o QR Code..."></textarea>
+                        </div>
+                        <button class="button button-primary" onclick="generateQR('text')">
+                            Gerar QR Code
+                        </button>
+                    </div>
+                    
+                    <!-- Tab Contato -->
+                    <div id="contact-tab" class="tab-content">
+                        <h2 class="section-title">Informações de contato</h2>
+                        <div class="two-columns">
+                            <div class="input-group">
+                                <label for="contact-firstname">Nome</label>
+                                <input type="text" id="contact-firstname" placeholder="João">
+                            </div>
+                            <div class="input-group">
+                                <label for="contact-lastname">Sobrenome</label>
+                                <input type="text" id="contact-lastname" placeholder="Silva">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="contact-phone">Telefone</label>
+                            <input type="tel" id="contact-phone" placeholder="+55 (11) 99999-9999">
+                        </div>
+                        <div class="input-group">
+                            <label for="contact-email">E-mail</label>
+                            <input type="email" id="contact-email" placeholder="joao.silva@exemplo.com">
+                        </div>
+                        <div class="input-group">
+                            <label for="contact-company">Empresa</label>
+                            <input type="text" id="contact-company" placeholder="Nome da empresa">
+                        </div>
+                        <div class="input-group">
+                            <label for="contact-website">Website</label>
+                            <input type="url" id="contact-website" placeholder="https://exemplo.com">
+                        </div>
+                        <button class="button button-primary" onclick="generateQR('contact')">
+                            Gerar QR Code
+                        </button>
+                    </div>
+                    
+                    <button class="button button-secondary" style="margin-top: 16px;" onclick="clearFields()">
+                        Limpar campos
+                    </button>
+                </div>
+            </div>
+            
+            <div class="qr-section">
+                <h2 class="section-title">QR Code Gerado</h2>
+                
+                <div class="qr-container">
+                    <div id="qrcode">
+                        <div class="qr-placeholder">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm7-2h7v7h-7V3zm2 2v3h3V5h-3zM3 12h7v7H3v-7zm2 2v3h3v-3H5zm7-2h7v7h-7v-7zm2 2v3h3v-3h-3z"/>
+                            </svg>
+                            <p>Preencha o formulário para gerar seu QR Code</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="customization-options" id="customizationOptions" style="display: none;">
+                    <div class="style-selector">
+                        <p class="color-selector-label">Estilo do QR Code:</p>
+                        <div class="style-buttons">
+                            <button class="style-button active" data-style="normal" onclick="setStyle('normal')">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="4" y="4" width="16" height="16" rx="0"/>
+                                </svg>
+                                Normal
+                            </button>
+                            <button class="style-button" data-style="rounded" onclick="setStyle('rounded')">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="4" y="4" width="16" height="16" rx="4"/>
+                                </svg>
+                                Arredondado
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="color-selector">
+                        <p class="color-selector-label">Cor do QR Code:</p>
+                        <div class="color-options">
+                            <div class="color-option active" style="background: #000000" data-color="#000000"></div>
+                            <div class="color-option" style="background: #1F4E5F" data-color="#1F4E5F"></div>
+                            <div class="color-option" style="background: #3FA7A0" data-color="#3FA7A0"></div>
+                            <div class="color-option" style="background: #E9B8B5" data-color="#E9B8B5"></div>
+                            <div class="color-option" style="background: #F28F7E" data-color="#F28F7E"></div>
+                            <div class="color-option" style="background: #C9A44C" data-color="#C9A44C"></div>
+                            <div class="color-option" style="background: #6366F1" data-color="#6366F1"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons" id="actionButtons" style="display: none;">
+                    <button class="button button-primary" onclick="downloadQR()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Baixar PNG
+                    </button>
+                    <button class="button button-secondary" onclick="copyData()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        <span id="copyButtonText">Copiar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© MedSlim Ji-Paraná • Tecnologia para sua clínica</p>
+        </div>
+    </div>
+
+    <script>
+        let currentQR = null;
+        let currentData = '';
+        let selectedColor = '#000000';
+        let selectedStyle = 'normal';
+        
+        // Inicializar seletores de cor
+        document.querySelectorAll('.color-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                selectedColor = this.dataset.color;
+                if (currentData) {
+                    generateQRWithData(currentData);
+                }
+            });
+        });
+        
+        function setStyle(style) {
+            selectedStyle = style;
+            document.querySelectorAll('.style-button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.style === style);
+            });
+            if (currentData) {
+                generateQRWithData(currentData);
+            }
+        }
+        
+        function showTab(tabName) {
+            // Remove active de todas as tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Ativa a tab selecionada
+            event.target.closest('.tab').classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+        
+        function generateQR(type) {
+            let data = '';
+            
+            switch(type) {
+                case 'url':
+                    data = document.getElementById('url-input').value;
+                    if (!data) {
+                        alert('Por favor, digite uma URL!');
+                        return;
+                    }
+                    // Adiciona https:// se não tiver protocolo
+                    if (!data.match(/^https?:\/\//)) {
+                        data = 'https://' + data;
+                    }
+                    break;
+                    
+                case 'text':
+                    data = document.getElementById('text-input').value;
+                    if (!data) {
+                        alert('Por favor, digite algum texto!');
+                        return;
+                    }
+                    break;
+                    
+                case 'contact':
+                    const firstname = document.getElementById('contact-firstname').value;
+                    const lastname = document.getElementById('contact-lastname').value;
+                    const phone = document.getElementById('contact-phone').value;
+                    const email = document.getElementById('contact-email').value;
+                    const company = document.getElementById('contact-company').value;
+                    const website = document.getElementById('contact-website').value;
+                    
+                    if (!firstname && !lastname && !phone && !email) {
+                        alert('Por favor, preencha pelo menos o nome, telefone ou e-mail!');
+                        return;
+                    }
+                    
+                    // Formato vCard
+                    data = 'BEGIN:VCARD\nVERSION:3.0\n';
+                    if (firstname || lastname) {
+                        data += `FN:${firstname} ${lastname}\n`;
+                        data += `N:${lastname};${firstname};;;\n`;
+                    }
+                    if (phone) data += `TEL:${phone}\n`;
+                    if (email) data += `EMAIL:${email}\n`;
+                    if (company) data += `ORG:${company}\n`;
+                    if (website) data += `URL:${website}\n`;
+                    data += 'END:VCARD';
+                    break;
+            }
+            
+            currentData = data;
+            generateQRWithData(data);
+            
+            // Mostra os controles
+            document.getElementById('actionButtons').style.display = 'flex';
+            document.getElementById('customizationOptions').style.display = 'block';
+        }
+        
+        function generateQRWithData(data) {
+            const qrContainer = document.getElementById('qrcode');
+            
+            // Limpa o container
+            qrContainer.innerHTML = '';
+            
+            // Cria um container temporário
+            const tempContainer = document.createElement('div');
+            tempContainer.style.background = 'white';
+            tempContainer.style.padding = '20px';
+            tempContainer.style.borderRadius = '16px';
+            tempContainer.style.display = 'inline-block';
+            
+            // Gera novo QR Code com fundo transparente no arquivo final
+            currentQR = new QRCode(tempContainer, {
+                text: data,
+                width: 256,
+                height: 256,
+                colorDark: selectedColor,
+                colorLight: 'rgba(255,255,255,0)', // transparente para o download
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Adiciona o container
+            qrContainer.appendChild(tempContainer);
+            
+            // Se for estilo arredondado, aplica o efeito
+            if (selectedStyle === 'rounded') {
+                setTimeout(() => {
+                    applyRoundedStyle(tempContainer);
+                }, 100);
+            }
+        }
+        
+        // === NOVA VERSÃO: usa a matriz do QR para desenhar os módulos arredondados ===
+        function applyRoundedStyle(container) {
+            const qrModel = currentQR && currentQR._oQRCode;
+            const opts    = currentQR && currentQR._htOption;
+            if (!qrModel || !opts) return;
+        
+            const size       = opts.width || 256;
+            const count      = qrModel.getModuleCount();
+            const moduleSize = size / count;
+            const radius     = Math.min(moduleSize * 0.4, moduleSize / 2);
+        
+            const roundedCanvas = document.createElement('canvas');
+            roundedCanvas.width = size;
+            roundedCanvas.height = size;
+            const ctx = roundedCanvas.getContext('2d');
+        
+            // Cor dos módulos
+            ctx.fillStyle = selectedColor;
+        
+            // Desenha cada módulo com cantos arredondados — sem fundo (transparente)
+            for (let y = 0; y < count; y++) {
+                for (let x = 0; x < count; x++) {
+                    if (qrModel.isDark(y, x)) {
+                        roundRect(
+                            ctx,
+                            x * moduleSize + 0.5,
+                            y * moduleSize + 0.5,
+                            moduleSize - 1,
+                            moduleSize - 1,
+                            radius
+                        );
+                        ctx.fill();
+                    }
+                }
+            }
+        
+            // Garante apenas UM QR por vez dentro do container interno
+            container.innerHTML = '';
+            container.appendChild(roundedCanvas);
+        }
+        
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+        
+        // === NOVA VERSÃO: download sempre com transparência (canvas ou img) ===
+        function downloadQR() {
+            if (!currentQR) return;
+        
+            const canvas = document.querySelector('#qrcode canvas');
+            let dataURL = null;
+        
+            if (canvas) {
+                // PNG com transparência
+                dataURL = canvas.toDataURL('image/png');
+            } else {
+                // Fallback: se a lib tiver gerado <img>, converte para canvas mantendo transparência
+                const img = document.querySelector('#qrcode img');
+                if (!img) return;
+        
+                const c = document.createElement('canvas');
+                const w = img.naturalWidth || 256;
+                const h = img.naturalHeight || 256;
+                c.width = w;
+                c.height = h;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                dataURL = c.toDataURL('image/png');
+            }
+        
+            const link = document.createElement('a');
+            link.download = selectedStyle === 'rounded'
+                ? 'qr-code-medslim-rounded.png'
+                : 'qr-code-medslim.png';
+            link.href = dataURL;
+            link.click();
+        }
+        
+        function copyData() {
+            if (!currentData) return;
+            
+            navigator.clipboard.writeText(currentData).then(() => {
+                const btn = document.getElementById('copyButtonText');
+                btn.textContent = 'Copiado!';
+                setTimeout(() => {
+                    btn.textContent = 'Copiar';
+                }, 2000);
+            }).catch(err => {
+                alert('Erro ao copiar: ' + err);
+            });
+        }
+        
+        function clearFields() {
+            document.getElementById('url-input').value = '';
+            document.getElementById('text-input').value = '';
+            document.getElementById('contact-firstname').value = '';
+            document.getElementById('contact-lastname').value = '';
+            document.getElementById('contact-phone').value = '';
+            document.getElementById('contact-email').value = '';
+            document.getElementById('contact-company').value = '';
+            document.getElementById('contact-website').value = '';
+            
+            // Limpa o QR Code
+            document.getElementById('qrcode').innerHTML = `
+                <div class="qr-placeholder">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm7-2h7v7h-7V3zm2 2v3h3V5h-3zM3 12h7v7H3v-7zm2 2v3h3v-3H5zm7-2h7v7h-7v-7zm2 2v3h3v-3h-3z"/>
+                    </svg>
+                    <p>Preencha o formulário para gerar seu QR Code</p>
+                </div>
+            `;
+            
+            // Esconde os controles
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('customizationOptions').style.display = 'none';
+            
+            currentData = '';
+            currentQR = null;
+        }
+        
+        // Adiciona eventos de Enter
+        document.getElementById('url-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateQR('url');
+        });
+        
+        document.getElementById('text-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                generateQR('text');
+            }
+        });
+    </script>
+</body>
+</html>
