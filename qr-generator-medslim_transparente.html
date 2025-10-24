@@ -431,21 +431,68 @@
                 grid-template-columns: 1fr;
                 gap: 32px;
             }
-            
+
             .container {
                 padding: 24px;
             }
-            
+
             h1 {
                 font-size: 1.8rem;
             }
-            
+
             .two-columns {
                 grid-template-columns: 1fr;
             }
-            
+
             .style-buttons {
                 flex-direction: column;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1 1 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .header {
+                margin-bottom: 28px;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .qr-container {
+                padding: 24px;
+            }
+
+            #qrcode {
+                min-height: 220px;
+            }
+
+            .customization-options {
+                margin-top: 20px;
+            }
+
+            .color-options {
+                grid-template-columns: repeat(4, 1fr);
             }
         }
     </style>
